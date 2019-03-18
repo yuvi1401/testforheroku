@@ -19,10 +19,11 @@ def getInvitesForUser(username):
                             inner join users u on i.invited_by_id = u.user_id 
                             where i.user_id=%s"""
         cursor.execute(getInvites_pgQuery, (userId,))
-        invitesForUser = cursor.fetchmany()
+        invitesForUser = cursor.fetchall()
 
         listOfInvites = []
 
+        print(invitesForUser)
         for row in invitesForUser:
             listOfInvites.append({'workspace': row[0], 'invited_by': row[1]})
 
