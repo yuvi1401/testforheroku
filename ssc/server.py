@@ -15,8 +15,8 @@ def homeDummy():
 @app.route("/api/invites/<username>", methods=["GET"])
 def inviteUser(username):
     listOfInvites = getInvitesForUser(username)
-    #TODO should return with a key called invites
-    return jsonify(listOfInvites);
+    res={'invites': listOfInvites}
+    return jsonify(res);
 
 @app.route("/api/invites/<username>", methods=["POST"])
 def updateInvite(username):
