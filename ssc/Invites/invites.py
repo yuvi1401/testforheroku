@@ -1,7 +1,7 @@
 import psycopg2
 
 
-# TODO reuse methods everywhere
+# TODO reuse db connection methods?
 
 def fetch_user_invites(username):
     try:
@@ -9,12 +9,9 @@ def fetch_user_invites(username):
             database="ssc")
         cursor = connection.cursor()
 
-        get_user_id_sql = "select user_id from users where username=%s"
+        user_id=get_user_id(username);
 
-        cursor.execute(get_user_id_sql, (username,))
-        user_id = cursor.fetchone()
-
-        if (user_id == None):
+        if (user_id == -1):
             return []
 
         get_invites_sql = """select w.name, u.username from invites i 
