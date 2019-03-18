@@ -1,5 +1,4 @@
 import os
-#import json
 
 from flask import Flask, jsonify
 
@@ -16,14 +15,7 @@ def homeDummy():
 @app.route("/api/invites/<username>", methods=["GET"])
 def inviteUser(username):
     listOfInvites = getInvitesForUser(username)
-    print (listOfInvites)
-    res = {'workspaces': listOfInvites}
-
-    #inviteCount = len(listOfInvites)
-    #if (inviteCount>0):
-        #res['invites'] = len(listOfInvites)
-
-    return jsonify(res);
+    return jsonify(listOfInvites);
 
 @app.route("/users")
 def usersDummy():

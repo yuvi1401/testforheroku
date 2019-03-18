@@ -14,17 +14,17 @@ def getInvitesForUser(username):
         if (userId == None):
             return []
 
-        getInvites_pgQuery = "select * from invites where user_id=%s"
+        getInvites_pgQuery = """select w.name, u.username from invites i 
+                            inner join workspaces w on i.workspace_id=w.workspace_id 
+                            inner join users u on i.invited_by_id = u.user_id 
+                            where i.user_id=%s"""
         cursor.execute(getInvites_pgQuery, (userId,))
         invitesForUser = cursor.fetchmany()
 
-        #listOfInvites = []
+        listOfInvites = []
 
-        #for row in invitesForUser:
-
-
-
-        #print (invitesForUser)
+        for row in invitesForUser:
+            listOfInvites.append({'workspace': row[0], 'invited_by': row[1]})
 
     except (Exception, psycopg2.Error) as error:
         print("Error while connecting to PostgreSQL", error)
@@ -35,6 +35,6 @@ def getInvitesForUser(username):
             connection.close()
             print("PostgreSQL connection is closed")
 
-    return invitesForUser;
+    return listOfInvites;
 
 
