@@ -1,6 +1,9 @@
 import os
+#import json
 
-from flask import Flask, render_template
+from flask import Flask, jsonify
+
+from ssc.Invites.invites import getInvitesForUser
 
 app = Flask(__name__, template_folder='testflask/templates')
 
@@ -9,6 +12,18 @@ app = Flask(__name__, template_folder='testflask/templates')
 def homeDummy():
     return 'Home';
 
+
+@app.route("/api/invites/<username>", methods=["GET"])
+def inviteUser(username):
+    listOfInvites = getInvitesForUser(username)
+    print (listOfInvites)
+    res = {'workspaces': listOfInvites}
+
+    #inviteCount = len(listOfInvites)
+    #if (inviteCount>0):
+        #res['invites'] = len(listOfInvites)
+
+    return jsonify(res);
 
 @app.route("/users")
 def usersDummy():
