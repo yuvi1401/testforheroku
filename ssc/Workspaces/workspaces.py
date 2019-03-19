@@ -2,6 +2,8 @@ import psycopg2
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id, is_user_admin
 from ssc.dbconfig import user, password, database
+from ssc.Utils.db_ops import get_workspace_id
+
 
 def delete_workspace(delete_request):
     deleted_by = delete_request['deleted_by']
@@ -189,7 +191,7 @@ def add_user_to_workspace(list_of_ids, workspace_id, is_admin=False):
 
         count = 0
         for user_id in list_of_ids:
-            if (user_id!=-1):
+            if (user_id != -1):
                 cursor.execute(insert_user_to_workspace_sql, (user_id, workspace_id, is_admin))
                 connection.commit()
                 count += cursor.rowcount
@@ -217,9 +219,6 @@ def delete_user_from_workspace(data):
         connection = psycopg2.connect(
             database='ssc'
         )
-
-
-
 
         cursor = connection.cursor()
         select_user = "select user_id from users where username = (%s)"
@@ -259,3 +258,42 @@ def delete_user_from_workspace(data):
             print("PostgresSQL connection is closed")
 
     return 'user deleted'
+
+
+def fetch_workspace_files(name):
+    try:
+        connection = psycopg2.connect(
+            database="ssc")
+
+        print("Using Python variable in Pg Query")
+
+        cursor = connection.cursor()
+        if (name == None):
+            return []
+        workspaceid = get_workspace_id(name)
+        if (get_workspace_id == -1):
+            return []
+
+        print(workspaceid)
+        cursor.execute("""SELECT file_name FROM workspace_files
+               INNER JOIN workspaces ON workspaces.workspace_id = workspace_files.workspace_id
+               WHERE workspaces.workspace_id = %s
+               """, (workspaceid,))
+
+        workspace_files = cursor.fetchall()
+
+        list_of_files = []
+        for row in workspace_files:
+            list_of_files.append(
+                {'file_name': row[0]})
+
+    except (Exception, psycopg2.Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+    finally:
+        # closing database connection.
+        if (connection):
+            cursor.close()
+            connection.close()
+            print("PostgreSQL connection is closed")
+
+    return list_of_files;

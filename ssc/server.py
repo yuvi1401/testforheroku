@@ -7,11 +7,11 @@ from ssc.Workspaces.workspaces import *
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
 from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
-    create_workspace_with_users, create_workspace_only, delete_user_from_workspace
+    create_workspace_with_users, create_workspace_only, fetch_workspace_files,\
+    delete_user_from_workspace
 
 from ssc.Users.users import fetch_users, add_user, fetch_user_workspaces
 
-from ssc.Workspaces.workspace import fetch_workspace_files
 
 
 app = Flask(__name__, template_folder = 'testflask/templates')

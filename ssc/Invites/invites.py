@@ -3,8 +3,6 @@ import psycopg2
 from ssc.Utils.db_ops import get_workspace_id, get_user_id
 
 
-# TODO reuse db connection methods?
-
 def fetch_user_invites(username):
     try:
         connection = psycopg2.connect(
