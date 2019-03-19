@@ -2,17 +2,14 @@ import os
 
 from flask import Flask, render_template
 
+from ssc.users.users import fetch_users
+
 app = Flask(__name__, template_folder='testflask/templates')
 
 
-@app.route("/")
-def homeDummy():
-    return 'Home';
-
-
 @app.route("/api/users")
-def usersDummy():
-    return "Hello, Users"
+def get_users():
+    return fetch_users()
 
 
 if __name__ == "__main__":
