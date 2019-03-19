@@ -1,6 +1,7 @@
 # most standard and easy to understand libray
 import psycopg2
 from flask import jsonify, request
+from cryptography.fernet import Fernet
 
 
 def post_workspace_users(data):
@@ -47,9 +48,6 @@ def delete_user_from_workspace(data):
             database='ssc'
         )
 
-
-
-
         cursor = connection.cursor()
         select_user = "select user_id from users where username = (%s)"
         cursor.execute(select_user, [username])
@@ -88,3 +86,40 @@ def delete_user_from_workspace(data):
             print("PostgresSQL connection is closed")
 
     return 'user deleted'
+
+
+def encrypt_file(data):
+    try:
+        key = 'rfCFW5NYIJq5qWBLW_bXwHeg4z0PwVM9MDssLtQ-T4o='
+        file_name = data['file_name']
+        print(key)
+        print(file_name)
+        connection = psycopg2.connect(
+            database='ssc'
+        )
+        cursor = connection.cursor()
+
+        with open(file_name, 'rb') as f:
+            file = f.read()
+
+            # print(file)
+
+            fernet = Fernet(key)
+            encrypted = fernet.encrypt(file)
+            print('!!!!!!!')
+            print(encrypted)
+
+        with open('file_to_encrypt', 'wb') as f:
+            f.write(encrypted)
+    except (Exception, psycopg2.Error) as error:
+        print('Error while conecting to PostgresQL', error)
+
+    finally:
+
+        if (connection):
+            # close the connection and the cursor
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+
+    return 'encrypted'
