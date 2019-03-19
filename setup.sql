@@ -29,7 +29,6 @@ create table invites (
 	invited_by_id INT REFERENCES users(user_id) ON DELETE CASCADE);
 
 
-
 insert into users (username, password)
 values
 ('Coddzilla', 123),

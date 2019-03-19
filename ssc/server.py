@@ -2,6 +2,8 @@ import os
 
 from flask import Flask, jsonify, request, abort
 
+from ssc.Workspaces.workspaces import *
+
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
@@ -25,6 +27,11 @@ def get_user_invites(username):
     list_of_invites = fetch_user_invites(username)
     res = {'invites': list_of_invites}
     return jsonify(res);
+
+@app.route("/deleteUser", methods=['DELETE'])
+def delete_user():
+    return delete_user_from_workspace(request.json)
+
 
 @app.route('/api/workspaces', methods=['POST'])
 def Workspaces_users():
@@ -96,7 +103,5 @@ def get_user_workspaces(username):
 if __name__ == "__main__":
     # app.run(debug=True)
     port = int(os.environ.get('PORT', 5000))
-
-
     app.run(host='0.0.0.0', port=port)
 
