@@ -24,14 +24,10 @@ create table workspace_files (
 
 create table invites (
 	invite_id SERIAL PRIMARY KEY,
-<<<<<<< HEAD
 	user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
 	workspace_id INT REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
 	invited_by_id INT REFERENCES users(user_id) ON DELETE CASCADE);
-=======
-	user_id INT REFERENCES users(user_id),
-	workspace_id INT REFERENCES workspaces(workspace_id),
-	invited_by_id INT REFERENCES users(user_id));
+
 
 
 
@@ -71,4 +67,3 @@ values
 (1, 1, 2, 2),
 (2, 2, 1, 2),
 (3, 3, 1, 2);
->>>>>>> dev
