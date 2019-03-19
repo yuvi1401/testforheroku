@@ -50,3 +50,30 @@ def identify_audio(audio_file):
     # audio_id = base64.b64decode(res["metadata"]["music"][0]["acrid"])
     #
     # return audio_id
+
+
+def create_acr_bucket(name):
+    http_method = "POST"
+    timestamp = str(time.time())
+    uri = '/v1/buckets'
+
+    string_to_sign = '\n'.join((http_method, uri, account_access_key, signature_version, timestamp))
+
+    signature = sign(string_to_sign, account_access_secret)
+
+    headers = {'access-key': account_access_key, 'signature-version': signature_version, 'signature': signature,
+               'timestamp': timestamp}
+
+    data = {'name': name,
+            'type': 'File',
+            'scale': '10',
+            'region': "eu-west-1",
+            'content_type': 'Music'}
+
+    requrl = account_host + uri
+
+    r = requests.post(requrl, data = data, headers = headers, verify = True)
+
+    r.encoding = 'utf-8'
+
+    print(r.text)
