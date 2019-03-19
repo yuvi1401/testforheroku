@@ -271,6 +271,9 @@ def fetch_workspace_files(name):
         if (name == None):
             return []
         workspaceid = get_workspace_id(name)
+        if (get_workspace_id == -1):
+            return []
+
         print(workspaceid)
         cursor.execute("""SELECT file_name FROM workspace_files
                INNER JOIN workspaces ON workspaces.workspace_id = workspace_files.workspace_id
