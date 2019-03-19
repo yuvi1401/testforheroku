@@ -1,6 +1,9 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, jsonify, request, abort
+
+from ssc.Workspaces.workspace import fetch_workspace_files
+from ssc.Workspaces.workspaceid import fetch_workspace_id
 
 app = Flask(__name__, template_folder='testflask/templates')
 
@@ -10,10 +13,11 @@ def homeDummy():
     return 'Home';
 
 
-@app.route("/users")
-def usersDummy():
-    return "Hello, Users"
-
+@app.route("/api/workspaces/<name>", methods=["GET"])
+def get_workspace_file(name):
+    list_of_files = fetch_workspace_files(name)
+    res = {'files': list_of_files}
+    return jsonify(res);
 
 if __name__ == "__main__":
     # app.run(debug=True)
