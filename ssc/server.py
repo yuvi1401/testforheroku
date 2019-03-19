@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify, request, abort
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
+from ssc.Users.users import fetch_user_workspaces
 
 app = Flask(__name__, template_folder = 'testflask/templates')
 
@@ -43,8 +44,10 @@ def invite_user():
     return jsonify(res_json);
 
 
-@app.route('/api/users/<username>', method = ["GET"])
-def fetch_user():
+@app.route('/api/users/<username>', methods = ["GET"])
+def get_user_workspaces(username):
+    list_of_workspaces = fetch_user_workspaces(username)
+    return jsonify({'workspaces': list_of_workspaces})
 
 
 if __name__ == "__main__":
