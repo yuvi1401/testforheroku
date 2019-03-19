@@ -2,11 +2,14 @@ import os
 
 from flask import Flask, jsonify, request, abort
 
+
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
 from ssc.Users.users import fetch_user_workspaces
 
 from ssc.Workspaces.workspaces import delete_workspace, update_admin, post_workspace_users
+
+from ssc.Workspaces.workspace import fetch_workspace_files
 
 
 app = Flask(__name__, template_folder = 'testflask/templates')
@@ -62,7 +65,13 @@ def handle_delete_workspace():
     if (res == False): res_json['error'] = 'Could not delete workspace. ' \
                                            'Check user is admin or workspace still exists'
     return jsonify(res_json);
-
+  
+@app.route("/api/workspaces/<name>", methods=["GET"])
+def get_workspace_file(name):
+    list_of_files = fetch_workspace_files(name)
+    res = {'files': list_of_files}
+    return jsonify(res);
+  
 @app.route("/api/workspaces/<workspace_name>", methods=["PUT"])
 def handle_update_workspace(workspace_name):
     if (not request.json) |  ('username' not in request.json) \
