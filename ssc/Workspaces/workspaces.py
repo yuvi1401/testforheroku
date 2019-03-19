@@ -7,7 +7,6 @@ def post_workspace_users(data):
     try:
         workspace_name = data['name']
 
-
         connection = psycopg2.connect(
             database='ssc'
         )
@@ -19,7 +18,6 @@ def post_workspace_users(data):
         cursor.execute(insert_workspace_name, (workspace_name,))
 
         # workspace_list = cursor.fetchall()
-
 
         connection.commit()
         # select_all_workspaces = "select * from workspaces"
@@ -37,3 +35,37 @@ def post_workspace_users(data):
             print("PostgresSQL connection is closed")
 
     return 'workspace added'
+
+
+def delete_user_from_workspace(data):
+    print(data)
+    try:
+        username = data['username']
+        admin_username = data['admin_username']
+        workspace_name = data['workspace_name']
+        print(username)
+        print(workspace_name)
+        print(admin_username)
+
+        connection = psycopg2.connect(
+        database='ssc'
+        )
+
+        cursor = connection.cursor()
+        delete_user = "delete from users where username =(%s)"
+        cursor.execute(delete_user, (username,))
+        connection.commit()
+
+    except (Exception, psycopg2.Error) as error:
+        print('Error while conecting to PostgresQL', error)
+
+    finally:
+
+        if (connection):
+         # close the connection and the cursor
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+
+
+    return 'user deleted'
