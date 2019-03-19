@@ -13,17 +13,22 @@ create table workspaces (
 	name VARCHAR);
 
 create table workspace_users (
-	user_id INT REFERENCES users(user_id),
-	workspace_id INT REFERENCES workspaces(workspace_id),
+	user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+	workspace_id INT REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
 	is_admin BOOLEAN);
 
 create table workspace_files (
-	workspace_id INT REFERENCES workspaces(workspace_id),
+	workspace_id INT REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
 	file_name VARCHAR(42),
 	audio_key VARCHAR);
 
 create table invites (
 	invite_id SERIAL PRIMARY KEY,
+<<<<<<< HEAD
+	user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+	workspace_id INT REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
+	invited_by_id INT REFERENCES users(user_id) ON DELETE CASCADE);
+=======
 	user_id INT REFERENCES users(user_id),
 	workspace_id INT REFERENCES workspaces(workspace_id),
 	invited_by_id INT REFERENCES users(user_id));
@@ -66,3 +71,4 @@ values
 (1, 1, 2, 2),
 (2, 2, 1, 2),
 (3, 3, 1, 2);
+>>>>>>> dev
