@@ -3,11 +3,9 @@ import os
 from flask import Flask, jsonify, request, abort
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
-from ssc.Workspaces.workspaces import delete_workspace, update_admin
+from ssc.Workspaces.workspaces import delete_workspace, update_admin, post_workspace_users
 
 app = Flask(__name__, template_folder='testflask/templates')
-
-
 
 
 @app.route("/")
@@ -15,11 +13,9 @@ def homeDummy():
     return 'Home';
 
 
-@app.route("/api/invites/<username>", methods=["GET"])
-def get_user_invites(username):
-    list_of_invites = fetch_user_invites(username)
-    res = {'invites': list_of_invites}
-    return jsonify(res);
+@app.route('/api/workspaces', methods=['POST'])
+def Workspaces_users():
+    return post_workspace_users(request.json)
 
 
 @app.route("/api/invites/<username>", methods=["POST"])
@@ -72,4 +68,4 @@ def handle_update_workspace(workspace_name):
 if __name__ == "__main__":
     # app.run(debug=True)
     port = int(os.environ.get('PORT', 5000))
-    app.run(port=port)
+    app.run(host='0.0.0.0', port=port)

@@ -85,3 +85,31 @@ def update_admin(workspace, admin_request):
 
     if (count == 0): return False
     return True
+
+
+def post_workspace_users(data):
+    try:
+        workspace_name = data['name']
+
+        connection = psycopg2.connect(
+            database='ssc'
+        )
+        print(workspace_name)
+
+        cursor = connection.cursor()
+
+        insert_workspace_name = "insert into workspaces (name) values (%s)"
+        cursor.execute(insert_workspace_name, (workspace_name,))
+        connection.commit()
+
+    except (Exception, psycopg2.Error) as error:
+        print('Error while conecting to PostgresQL', error)
+    finally:
+
+        if (connection):
+            # close the connection and the cursor
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+
+    return 'workspace added'
