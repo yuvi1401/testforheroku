@@ -2,8 +2,8 @@ import psycopg2
 
 try:
     connection = psycopg2.connect(
-        # user = "will",
-        # password = "Password123",
+        # user = "",
+        # password = "",
         # host = "127.0.0.1",
         # port = "5432",
         database="ssc")
