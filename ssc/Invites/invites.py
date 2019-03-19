@@ -1,5 +1,6 @@
 import psycopg2
 
+from ssc.Utils.db_ops import get_workspace_id, get_user_id
 
 # TODO reuse db connection methods?
 
@@ -60,7 +61,7 @@ def process_invite(username, invite_response):
         user_id = invites[1]
         workspace_id = invites[2]
 
-        if (decision == True):
+        if (decision == 'True'):
             insert_user_to_workspace_sql = """insert into workspace_users (user_id, workspace_id, is_admin)
                                         values(%s, %s, false)"""
             cursor.execute(insert_user_to_workspace_sql, (user_id, workspace_id))
@@ -135,52 +136,3 @@ def insert_user_invite(invite_json):
     if (count==0): return False
     return True
 
-
-def get_user_id(username):
-    try:
-        connection = psycopg2.connect(
-            database="ssc")
-        cursor = connection.cursor()
-
-        get_user_id_sql = "select user_id from users where username=%s"
-
-        cursor.execute(get_user_id_sql, (username,))
-        user_id = cursor.fetchone()
-
-        if (user_id is None):
-            return -1
-
-    except (Exception, psycopg2.Error) as error:
-        print("Error while connecting to PostgreSQL", error)
-    finally:
-        if (connection):
-            cursor.close()
-            connection.close()
-            print("PostgreSQL connection is closed")
-
-    return user_id
-
-
-def get_workspace_id(workspace):
-    try:
-        connection = psycopg2.connect(
-            database="ssc")
-        cursor = connection.cursor()
-
-        get_workspace_id_sql = "select workspace_id from workspaces where name=%s"
-
-        cursor.execute(get_workspace_id_sql, (workspace,))
-        workspace_id = cursor.fetchone()
-
-        if (workspace_id is None):
-            return -1
-
-    except (Exception, psycopg2.Error) as error:
-        print("Error while connecting to PostgreSQL", error)
-    finally:
-        if (connection):
-            cursor.close()
-            connection.close()
-            print("PostgreSQL connection is closed")
-
-    return workspace_id
