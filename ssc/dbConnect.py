@@ -1,4 +1,4 @@
-import psycopg2
+mport psycopg2
 
 try:
     connection = psycopg2.connect(

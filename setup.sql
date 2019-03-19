@@ -28,9 +28,6 @@ create table invites (
 	workspace_id INT REFERENCES workspaces(workspace_id) ON DELETE CASCADE,
 	invited_by_id INT REFERENCES users(user_id) ON DELETE CASCADE);
 
-
-
-
 insert into users (username, password)
 values
 ('Coddzilla', 123),

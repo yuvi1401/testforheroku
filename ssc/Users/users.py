@@ -1,4 +1,5 @@
 import psycopg2
+
 from flask import jsonify
 from ssc.dbconfig import user, password, database
 from ssc.Invites.invites import get_user_id
@@ -93,5 +94,5 @@ def fetch_user_workspaces(username):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-
+    
     return list_of_user_workspaces
