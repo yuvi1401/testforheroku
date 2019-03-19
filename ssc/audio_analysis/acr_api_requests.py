@@ -77,3 +77,33 @@ def create_acr_bucket(name):
     r.encoding = 'utf-8'
 
     print(r.text)
+
+
+def upload_audio(path, bucket, title, audio_id):
+    if identify_audio(sys.argv[1])["status"]["msg"] == 'Success':
+        return print('This audio file already exists please choose another')
+
+    http_method = "POST"
+    timestamp = str(time.time())
+    uri = "/v1/audios"
+
+    string_to_sign = '\n'.join(
+        (http_method, uri, account_access_key, signature_version, str(timestamp)))
+
+    signature = sign(string_to_sign, account_access_secret)
+
+    f = open(path, "rb")
+    files = {'audio_file': ("audio_file", f)}
+
+    headers = {'access-key': account_access_key, 'signature-version': signature_version, 'signature': signature,
+               'timestamp': timestamp}
+
+    data = {'title': title, "audio_id": audio_id, "bucket_name": bucket, "data_type": "audio"}
+
+    requrl = account_host + uri
+
+    r = requests.post(requrl, files = files, data = data, headers = headers, verify = True)
+
+    r.encoding = "utf-8"
+
+    return r
