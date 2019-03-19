@@ -1,5 +1,5 @@
 import psycopg2
-from flask import jsonify, request
+from flask import jsonify
 
 
 def add_user(username, password):
