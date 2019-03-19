@@ -1,10 +1,12 @@
 import psycopg2
-
+from ssc.dbconfig import user, password, database
 
 def get_user_id(username):
     try:
         connection = psycopg2.connect(
-            database="ssc")
+            user=user,
+            password=password,
+            database=database)
         cursor = connection.cursor()
 
         get_user_id_sql = "select user_id from users where username=%s"
@@ -29,7 +31,9 @@ def get_user_id(username):
 def is_user_admin(user_id, workspace_id):
     try:
         connection = psycopg2.connect(
-            database="ssc")
+            user=user,
+            password=password,
+            database=database)
         cursor = connection.cursor()
 
         is_user_admin_sql = "select * from workspace_users where user_id=%s " \
@@ -53,7 +57,9 @@ def is_user_admin(user_id, workspace_id):
 def get_workspace_id(workspace):
     try:
         connection = psycopg2.connect(
-            database="ssc")
+            user=user,
+            password=password,
+            database=database)
         cursor = connection.cursor()
 
         get_workspace_id_sql = "select workspace_id from workspaces where name=%s"
