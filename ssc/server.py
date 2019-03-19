@@ -10,7 +10,7 @@ def homeDummy():
     return 'Home';
 
 
-@app.route("/api/users")
+@app.route("/users")
 def usersDummy():
     return "Hello, Users"
 
