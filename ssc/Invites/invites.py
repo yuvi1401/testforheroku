@@ -2,6 +2,7 @@ import psycopg2
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id
 
+
 # TODO reuse db connection methods?
 
 def fetch_user_invites(username):
@@ -10,7 +11,7 @@ def fetch_user_invites(username):
             database="ssc")
         cursor = connection.cursor()
 
-        user_id=get_user_id(username);
+        user_id = get_user_id(username);
 
         if (user_id == -1):
             return []
@@ -112,7 +113,7 @@ def insert_user_invite(invite_json):
         is_inviter_admin_sql = """select * from workspace_users where user_id=%s and 
                                 workspace_id=%s and is_admin=True"""
 
-        cursor.execute(is_inviter_admin_sql, (invited_by_id,workspace_id))
+        cursor.execute(is_inviter_admin_sql, (invited_by_id, workspace_id))
         row = cursor.fetchone()
 
         if (row is None):
@@ -133,6 +134,5 @@ def insert_user_invite(invite_json):
             connection.close()
             print("PostgreSQL connection is closed")
 
-    if (count==0): return False
+    if (count == 0): return False
     return True
-

@@ -5,12 +5,12 @@ create database ssc;
 
 create table users (
 	user_id SERIAL PRIMARY KEY,
-	username VARCHAR,
+	username VARCHAR UNIQUE,
 	password VARCHAR );
 
 create table workspaces (
 	workspace_id SERIAL PRIMARY KEY,
-	name VARCHAR);
+	name VARCHAR UNIQUE);
 
 create table workspace_users (
 	user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
