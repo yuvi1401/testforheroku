@@ -10,7 +10,6 @@ def post_workspace_users(data):
         connection = psycopg2.connect(
             database='ssc'
         )
-        print(workspace_name)
 
         cursor = connection.cursor()
 
@@ -38,23 +37,44 @@ def post_workspace_users(data):
 
 
 def delete_user_from_workspace(data):
-    print(data)
     try:
+        # check if admin_username is the same as the workspace_admins
         username = data['username']
         admin_username = data['admin_username']
         workspace_name = data['workspace_name']
-        print(username)
-        print(workspace_name)
-        print(admin_username)
 
         connection = psycopg2.connect(
-        database='ssc'
+            database='ssc'
         )
 
+
+
+
         cursor = connection.cursor()
-        delete_user = "delete from users where username =(%s)"
-        cursor.execute(delete_user, (username,))
-        connection.commit()
+        select_user = "select user_id from users where username = (%s)"
+        cursor.execute(select_user, [username])
+        user_id = cursor.fetchone()
+
+        select_workspace_id = "select workspace_id from workspaces where name = (%s)"
+        cursor.execute(select_workspace_id, [workspace_name])
+        workspace_id = cursor.fetchone()
+
+        select_admin_boolean = "select is_admin from workspace_users where user_id = (%s) and workspace_id = (%s)"
+        cursor.execute(select_admin_boolean, (user_id, workspace_id))
+        admin_boolean = cursor.fetchone()
+
+        print(admin_boolean)
+
+        if admin_boolean:
+            delete_user = "delete from workspace_users where user_id =(%s) and workspace_id = (%s)"
+            cursor.execute(delete_user, (user_id, workspace_id))
+            connection.commit()
+
+        elif (connection):
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+            return 'You are not the admin of this group or the user is not part of this group'
 
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
@@ -62,10 +82,9 @@ def delete_user_from_workspace(data):
     finally:
 
         if (connection):
-         # close the connection and the cursor
+            # close the connection and the cursor
             cursor.close()
             connection.close()
             print("PostgresSQL connection is closed")
-
 
     return 'user deleted'
