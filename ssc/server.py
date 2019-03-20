@@ -2,8 +2,6 @@ import os
 
 from flask import Flask, jsonify, request, abort
 
-from ssc.Workspaces.workspaces import *
-
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
 from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
@@ -11,7 +9,8 @@ from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
     delete_user_from_workspace
 
 from ssc.Users.users import fetch_users, add_user, fetch_user_workspaces
-from ssc.login.get_logged_in import fetch_user_details
+
+
 
 app = Flask(__name__, template_folder = 'testflask/templates')
 
@@ -19,12 +18,6 @@ app = Flask(__name__, template_folder = 'testflask/templates')
 @app.route("/")
 def homeDummy():
     return 'Home';
-
-@app.route('/api/login', methods=['GET'])
-def login():
-    username = request.json['username']
-    password = request.json['password']
-    return fetch_user_details(username, password)
 
 
 @app.route("/api/users")
@@ -122,8 +115,8 @@ def get_workspace_file(name):
     list_of_files = fetch_workspace_files(name)
     res = {'files': list_of_files}
     return jsonify(res);
-  
- 
+
+
 @app.route("/api/workspaces/<workspace_name>", methods=["PUT"])
 def handle_update_workspace(workspace_name):
     if (not request.json) | ('username' not in request.json) \
