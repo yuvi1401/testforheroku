@@ -68,7 +68,7 @@ def fetch_user_workspaces(username):
         if user_id == -1:
             return []
 
-        user_workspaces_sql = "SELECT w.name " \
+        user_workspaces_sql = "SELECT w.name, wu.is_admin " \
                               "FROM workspaces w " \
                               "JOIN workspace_users wu ON wu.workspace_id = w.workspace_id " \
                               "WHERE wu.user_id =%s "
@@ -80,7 +80,8 @@ def fetch_user_workspaces(username):
         list_of_user_workspaces = []
 
         for row in user_workspaces:
-            list_of_user_workspaces.append({'workspace': row[0]})
+            list_of_user_workspaces.append({'workspace': row[0],
+                                            'is_admin': row[1]})
 
         print(list_of_user_workspaces)
 
