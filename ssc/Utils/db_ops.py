@@ -1,6 +1,7 @@
 import psycopg2
 from ssc.dbconfig import user, password, database
 
+
 def get_user_id(username):
     try:
         connection = psycopg2.connect(
