@@ -5,6 +5,9 @@ import hmac
 import hashlib
 import sys
 import os
+
+
+
 from ssc.audio_analysis.acrconfig import identify_access_key, identify_access_secret, \
     identify_host, signature_version, account_access_key, account_access_secret, account_host
 
@@ -27,7 +30,7 @@ def identify_audio(audio_file):
     signature = sign(string_to_sign, identify_access_secret)
 
     f = open(audio_file, "rb")
-    sample_bytes = os.path.getsize(sys.argv[1])
+    sample_bytes = os.path.getsize(audio_file)
 
     files = {'sample': f}
 
