@@ -1,8 +1,10 @@
 import os
+import asyncio
 
 from flask import Flask, jsonify, request, abort
 
-from ssc.Workspaces.workspaces import *
+from ssc.Utils.async_db_test import  get_user_id
+
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
@@ -12,14 +14,15 @@ from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
 
 from ssc.Users.users import fetch_users, add_user, fetch_user_workspaces
 
-
-
 app = Flask(__name__, template_folder = 'testflask/templates')
 
 
 @app.route("/")
 def homeDummy():
-    return 'Home';
+    loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    userid = loop.run_until_complete(get_user_id('Shruminator'))
+    return jsonify({'userid': userid})
 
 
 @app.route("/api/users")
@@ -39,11 +42,9 @@ def get_user_workspaces(username):
     list_of_workspaces = fetch_user_workspaces(username)
     return jsonify({'workspaces': list_of_workspaces})
 
-
 @app.route("/deleteUser", methods=['DELETE'])
 def delete_user():
     return delete_user_from_workspace(request.json)
-
 
 
 @app.route("/api/invites/<username>", methods = ["POST"])
@@ -133,11 +134,6 @@ def handle_update_workspace(workspace_name):
 
     return jsonify(res_json);
 
-
-@app.route('/api/users/<username>', methods = ["GET"])
-def get_user_workspaces(username):
-    list_of_workspaces = fetch_user_workspaces(username)
-    return jsonify({'workspaces': list_of_workspaces})
 
 
 if __name__ == "__main__":

@@ -1,15 +1,18 @@
+import asyncio
+
 import psycopg2
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id
 
-
+#TODO test
 def fetch_user_invites(username):
     try:
         connection = psycopg2.connect(
             database="ssc")
         cursor = connection.cursor()
 
-        user_id = get_user_id(username);
+        loop = asyncio.new_event_loop()
+        user_id = loop.run_until_complete(get_user_id(username))
 
         if (user_id == -1):
             return []
@@ -99,9 +102,14 @@ def insert_user_invite(invite_json):
     workspace = invite_json['workspace']
     invited_by = invite_json['invitedBy']
 
-    user_id = get_user_id(username);
-    invited_by_id = get_user_id(invited_by);
-    workspace_id = get_workspace_id(workspace);
+    loop = asyncio.new_event_loop()
+    user_id = loop.run_until_complete(get_user_id(username))
+
+    loop = asyncio.new_event_loop()
+    invited_by_id = loop.run_until_complete(get_user_id(invited_by))
+
+    loop = asyncio.new_event_loop()
+    workspace_id = loop.run_until_complete(get_workspace_id(workspace))
 
     try:
         connection = psycopg2.connect(

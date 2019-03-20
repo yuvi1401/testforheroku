@@ -1,15 +1,20 @@
+import asyncio
+
 import psycopg2
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id, is_user_admin
 from ssc.dbconfig import user, password, database
-from ssc.Utils.db_ops import get_workspace_id
 
 
 def delete_workspace(delete_request):
     deleted_by = delete_request['deleted_by']
     workspace = delete_request['workspace']
-    workspace_id = get_workspace_id(workspace)
-    deleted_by_id = get_user_id(deleted_by)
+    loop = asyncio.new_event_loop()
+    workspace_id = loop.run_until_complete(get_workspace_id(workspace))
+
+    loop = asyncio.new_event_loop()
+    deleted_by_id = loop.run_until_complete(get_user_id(deleted_by))
+
     if (workspace_id == -1 | deleted_by_id == -1):
         return False
 
@@ -20,7 +25,8 @@ def delete_workspace(delete_request):
             database=database)
         cursor = connection.cursor()
 
-        admin_status = is_user_admin(deleted_by_id, workspace_id)
+        loop = asyncio.new_event_loop()
+        admin_status = loop.run_until_complete(is_user_admin(deleted_by_id, workspace_id))
 
         if (admin_status == 0):
             return False
@@ -50,9 +56,14 @@ def update_admin(workspace, admin_request):
     admin_username = admin_request['admin_username']
     make_admin = admin_request['make_admin']
 
-    workspace_id = get_workspace_id(workspace)
-    user_id = get_user_id(username)
-    admin_id = get_user_id(admin_username)
+    loop = asyncio.new_event_loop()
+    workspace_id = loop.run_until_complete(get_workspace_id(workspace))
+
+    loop = asyncio.new_event_loop()
+    user_id = loop.run_until_complete(get_user_id(username))
+
+    loop = asyncio.new_event_loop()
+    admin_id = loop.run_until_complete(get_user_id(admin_username))
 
     if (workspace_id == -1 | admin_id == -1 | user_id == -1):
         return False
@@ -64,7 +75,9 @@ def update_admin(workspace, admin_request):
             database=database)
         cursor = connection.cursor()
 
-        admin_status = is_user_admin(admin_id, workspace_id)
+
+        loop = asyncio.new_event_loop()
+        admin_status = loop.run_until_complete(is_user_admin(admin_id, workspace_id))
 
         if (admin_status == 0):
             return False
@@ -99,7 +112,9 @@ def create_workspace_only(data):
     try:
         workspace_name = data['name']
         admin = data['admin'];
-        admin_id = get_user_id(admin)
+        loop = asyncio.new_event_loop()
+        admin_id = loop.run_until_complete(get_user_id(admin))
+
 
         connection = psycopg2.connect(
             user=user,
@@ -155,14 +170,17 @@ def create_workspace_with_users(data):
             return count;
 
         new_workspace_id = cursor.fetchone()[0]
-        admin_id = get_user_id(admin)
+        loop = asyncio.new_event_loop()
+        admin_id = loop.run_until_complete(get_user_id(admin))
         admin_added = add_user_to_workspace([admin_id], new_workspace_id, True);
         if (admin_added == 0):
             return admin_added;
 
         user_id_list = []
         for user in users:
-            user_id_list.append(get_user_id(user['username']))
+            loop = asyncio.new_event_loop()
+            single_user_id = loop.run_until_complete(get_user_id(user['username']))
+            user_id_list.append(single_user_id)
 
         users_added = add_user_to_workspace(user_id_list, new_workspace_id);
     except (Exception, psycopg2.Error) as error:
@@ -270,15 +288,17 @@ def fetch_workspace_files(name):
         cursor = connection.cursor()
         if (name == None):
             return []
-        workspaceid = get_workspace_id(name)
-        if (get_workspace_id == -1):
+
+        loop = asyncio.new_event_loop()
+        workspace_id = loop.run_until_complete(get_workspace_id(name))
+        if (workspace_id == -1):
             return []
 
-        print(workspaceid)
+
         cursor.execute("""SELECT file_name FROM workspace_files
                INNER JOIN workspaces ON workspaces.workspace_id = workspace_files.workspace_id
                WHERE workspaces.workspace_id = %s
-               """, (workspaceid,))
+               """, (workspace_id,))
 
         workspace_files = cursor.fetchall()
 
