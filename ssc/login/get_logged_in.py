@@ -1,5 +1,6 @@
 import psycopg2
 from flask import jsonify
+from ssc.dbconfig import user, password, database
 
 
 def fetch_user_details(username, password):
@@ -7,11 +8,9 @@ def fetch_user_details(username, password):
 
     try:
         connection = psycopg2.connect(
-            user="willemtaylor",
-            password="password",
-            host="127.0.0.1",
-            port="5432",
-            database="ssc")
+            user=user,
+            password=password,
+            database=database)
         cursor = connection.cursor()
 
         cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s;", (username, password))
