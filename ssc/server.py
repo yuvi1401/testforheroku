@@ -1,10 +1,6 @@
 import os
-import asyncio
 
 from flask import Flask, jsonify, request, abort
-
-from ssc.Utils.async_db_test import  get_user_id
-
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
@@ -19,10 +15,7 @@ app = Flask(__name__, template_folder = 'testflask/templates')
 
 @app.route("/")
 def homeDummy():
-    loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(loop)
-    userid = loop.run_until_complete(get_user_id('Shruminator'))
-    return jsonify({'userid': userid})
+    return 'Hello'
 
 
 @app.route("/api/users")
@@ -42,24 +35,9 @@ def get_user_workspaces(username):
     list_of_workspaces = fetch_user_workspaces(username)
     return jsonify({'workspaces': list_of_workspaces})
 
-@app.route("/deleteUser", methods=['DELETE'])
+@app.route("/api/deleteUser", methods=['DELETE'])
 def delete_user():
     return delete_user_from_workspace(request.json)
-
-
-@app.route("/api/invites/<username>", methods = ["POST"])
-def update_invite(username):
-    if (not request.json) | ('accept' not in request.json) | ('workspace' not in request.json):
-        abort(400)
-
-    res = process_invite(username, request.json)
-    return jsonify({'invitesProcessed': res});
-
-@app.route("/api/invites/<username>", methods=["GET"])
-def get_user_invites(username):
-    list_of_invites = fetch_user_invites(username)
-    res = {'invites': list_of_invites}
-    return jsonify(res);
 
 
 @app.route("/api/invites", methods = ["POST"])
@@ -73,6 +51,23 @@ def invite_user():
     if (res == False): res_json['error'] = 'Could not invite user. ' \
                                            'Check user is admin or invite still exists'
     return jsonify(res_json);
+
+
+@app.route("/api/invites/<username>", methods=["GET"])
+def get_user_invites(username):
+    list_of_invites = fetch_user_invites(username)
+    res = {'invites': list_of_invites}
+    return jsonify(res);
+
+
+@app.route("/api/invites/<username>", methods = ["POST"])
+def update_invite(username):
+    if (not request.json) | ('accept' not in request.json) | ('workspace' not in request.json):
+        abort(400)
+
+    res = process_invite(username, request.json)
+    return jsonify({'invitesProcessed': res});
+
 
 
 @app.route('/api/workspaces', methods=['POST'])

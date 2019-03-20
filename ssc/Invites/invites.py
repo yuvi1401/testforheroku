@@ -4,7 +4,8 @@ import psycopg2
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id
 
-#TODO test
+
+# TODO test
 def fetch_user_invites(username):
     try:
         connection = psycopg2.connect(
@@ -133,12 +134,14 @@ def insert_user_invite(invite_json):
 
     except (Exception, psycopg2.Error) as error:
         print("Error while connecting to PostgreSQL", error)
+        count = 0
     finally:
         # closing database connection.
         if (connection):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-
-    if (count == 0): return False
-    return True
+            if (count == 0): return False
+            return True
+        else:
+            return False

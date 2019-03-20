@@ -243,12 +243,15 @@ def delete_user_from_workspace(data):
         cursor.execute(select_user, [username])
         user_id = cursor.fetchone()
 
+        cursor.execute(select_user, [admin_username])
+        admin_id = cursor.fetchone()
+
         select_workspace_id = "select workspace_id from workspaces where name = (%s)"
         cursor.execute(select_workspace_id, [workspace_name])
         workspace_id = cursor.fetchone()
 
         select_admin_boolean = "select is_admin from workspace_users where user_id = (%s) and workspace_id = (%s)"
-        cursor.execute(select_admin_boolean, (user_id, workspace_id))
+        cursor.execute(select_admin_boolean, (admin_id, workspace_id))
         admin_boolean = cursor.fetchone()
 
         print(admin_boolean)
