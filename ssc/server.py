@@ -11,8 +11,7 @@ from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
     delete_user_from_workspace
 
 from ssc.Users.users import fetch_users, add_user, fetch_user_workspaces
-
-
+from ssc.login.get_logged_in import fetch_user_details
 
 app = Flask(__name__, template_folder = 'testflask/templates')
 
@@ -20,6 +19,12 @@ app = Flask(__name__, template_folder = 'testflask/templates')
 @app.route("/")
 def homeDummy():
     return 'Home';
+
+@app.route('/api/login', methods=['GET'])
+def login():
+    username = request.json['username']
+    password = request.json['password']
+    return fetch_user_details(username, password)
 
 
 @app.route("/api/users")
@@ -132,12 +137,6 @@ def handle_update_workspace(workspace_name):
                                            'Check admin user is an admin'
 
     return jsonify(res_json);
-
-
-@app.route('/api/users/<username>', methods = ["GET"])
-def get_user_workspaces(username):
-    list_of_workspaces = fetch_user_workspaces(username)
-    return jsonify({'workspaces': list_of_workspaces})
 
 
 if __name__ == "__main__":
