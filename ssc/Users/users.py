@@ -3,6 +3,7 @@ import asyncio
 from flask import jsonify
 from ssc.dbconfig import user, password, database
 from ssc.Invites.invites import get_user_id
+from passlib.hash import pbkdf2_sha256
 
 
 def add_user(username, password):
@@ -13,9 +14,11 @@ def add_user(username, password):
             database=database)
         cursor = connection.cursor()
 
+        encrypted_pw = pbkdf2_sha256.hash(password)
+
         cursor.execute("""INSERT INTO users (username, password)
                        VALUES (%s, %s) RETURNING *;"""
-                       , (username, password))
+                       , (username, encrypted_pw))
         connection.commit()
 
     finally:
