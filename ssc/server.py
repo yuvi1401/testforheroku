@@ -2,23 +2,23 @@ import os
 
 from flask import Flask, jsonify, request, abort
 
-from ssc.Workspaces.workspaces import *
-
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
 from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
-    create_workspace_with_users, create_workspace_only, fetch_workspace_files, \
+    create_workspace_with_users, create_workspace_only, fetch_workspace_files,\
     delete_user_from_workspace
 
 from ssc.Users.users import fetch_users, add_user, fetch_user_workspaces
+
 from ssc.login.get_logged_in import fetch_user_details
 
-app = Flask(__name__, template_folder='testflask/templates')
+
+app = Flask(__name__, template_folder = 'testflask/templates')
 
 
 @app.route("/")
 def homeDummy():
-    return 'Home';
+    return 'Hello'
 
 
 @app.route('/api/login', methods=['GET'])
@@ -59,23 +59,7 @@ def delete_user():
     return jsonify(res_json);
 
 
-@app.route("/api/invites/<username>", methods=["POST"])
-def update_invite(username):
-    if (not request.json) | ('accept' not in request.json) | ('workspace' not in request.json):
-        abort(400)
-
-    res = process_invite(username, request.json)
-    return jsonify({'invitesProcessed': res});
-
-
-@app.route("/api/invites/<username>", methods=["GET"])
-def get_user_invites(username):
-    list_of_invites = fetch_user_invites(username)
-    res = {'invites': list_of_invites}
-    return jsonify(res);
-
-
-@app.route("/api/invites", methods=["POST"])
+@app.route("/api/invites", methods = ["POST"])
 def invite_user():
     if (not request.json) | ('username' not in request.json) \
             | ('workspace' not in request.json) | ('invitedBy' not in request.json):
@@ -86,6 +70,23 @@ def invite_user():
     if (res == False): res_json['error'] = 'Could not invite user. ' \
                                            'Check user is admin or invite still exists'
     return jsonify(res_json);
+
+
+@app.route("/api/invites/<username>", methods=["GET"])
+def get_user_invites(username):
+    list_of_invites = fetch_user_invites(username)
+    res = {'invites': list_of_invites}
+    return jsonify(res);
+
+
+@app.route("/api/invites/<username>", methods = ["POST"])
+def update_invite(username):
+    if (not request.json) | ('accept' not in request.json) | ('workspace' not in request.json):
+        abort(400)
+
+    res = process_invite(username, request.json)
+    return jsonify({'invitesProcessed': res});
+
 
 
 @app.route('/api/workspaces', methods=['POST'])
@@ -131,8 +132,8 @@ def get_workspace_file(name):
     list_of_files = fetch_workspace_files(name)
     res = {'files': list_of_files}
     return jsonify(res);
-
-
+  
+ 
 @app.route("/api/workspaces/<workspace_name>", methods=["PUT"])
 def handle_update_workspace(workspace_name):
     if (not request.json) | ('username' not in request.json) \
@@ -148,7 +149,9 @@ def handle_update_workspace(workspace_name):
     return jsonify(res_json);
 
 
+
 if __name__ == "__main__":
     # app.run(debug=True)
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
+
