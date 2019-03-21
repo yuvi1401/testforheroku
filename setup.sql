@@ -1,4 +1,5 @@
 drop database if exists ssc;
+drop database if exists ssc;
 create database ssc;
 
 \c ssc;

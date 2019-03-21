@@ -1,0 +1,31 @@
+# Every test file has one or more tests...
+
+test_name: GET POST AND DELETE request for api/users'
+
+stages:
+  - name: Make sure GET request gives object when requested users with 200 status
+    request:
+      url: http://0.0.0.0:5000/api/users
+
+      method: GET
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      body:
+        {}
+
+stages:
+  - name: POST a json object to userlist get 201 status
+    request:
+      url: http://0.0.0.0:5000/api/users
+      method: POST
+      json:
+        {"username": "itv", "password": "sedrttd"}
+    response:
+      status_code: 200
+
+
+
+
+
