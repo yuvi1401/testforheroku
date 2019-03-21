@@ -109,18 +109,21 @@ def invite_user():
         abort(400)
 
     res = insert_user_invite(request.json)
-    res_json = {'user_invited': res}
-    if (res == False): res_json['error'] = 'Could not invite user. ' \
-                                           'Check user is admin or invite still exists'
-    return jsonify(res_json);
+    res_json = jsonify(res)
+    if ("error" in res):
+        return res_json, 404
+    else:
+        return res_json, 200
 
 
 @app.route("/api/invites/<username>", methods=["GET"])
 def get_user_invites(username):
-    list_of_invites = fetch_user_invites(username)
-    res = {'invites': list_of_invites}
-    return jsonify(res);
-
+    res = fetch_user_invites(username)
+    res_json = jsonify(res)
+    if ("error" in res):
+        return res_json, 404
+    else:
+        return res_json, 200
 
 @app.route("/api/invites/<username>", methods=["POST"])
 def update_invite(username):
@@ -128,8 +131,14 @@ def update_invite(username):
         abort(400)
 
     res = process_invite(username, request.json)
-    return jsonify({'invitesProcessed': res});
+    res_json = jsonify(res);
+    if ("error" in res):
+        return res_json, 404
+    else:
+        return res_json, 200
 
+
+# TODO
 
 @app.route('/api/workspaces', methods=['POST'])
 def handle_create_workspace():

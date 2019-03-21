@@ -282,7 +282,7 @@ def delete_user_from_workspace(data):
 
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
-
+        res['error']=str(error)
     finally:
 
         if (connection):
