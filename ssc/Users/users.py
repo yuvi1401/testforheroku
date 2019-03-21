@@ -7,6 +7,9 @@ from passlib.hash import pbkdf2_sha256
 
 
 def add_user(username, password):
+    connection = None
+    user_added = False
+    res={}
     try:
         connection = psycopg2.connect(
             user=user,
@@ -20,17 +23,26 @@ def add_user(username, password):
                        VALUES (%s, %s) RETURNING *;"""
                        , (username, encrypted_pw))
         connection.commit()
-
+        if (cursor.rowcount != 0):
+            user_added = True
+        else:
+            res["error"] = "Invalid username and/or password"
+    except (Exception, psycopg2.Error) as error:
+        print("Error while connecting to PostgreSQL", error)
+        res["error"] = str(error)
     finally:
         if (connection):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-
-    return jsonify({"users": username})
+        res["user_added"] = user_added
+        return res
 
 
 def fetch_users():
+    res = {}
+    list_of_users = []
+    connection = None
     try:
         connection = psycopg2.connect(
             user=user,
@@ -41,20 +53,21 @@ def fetch_users():
         cursor.execute("SELECT * FROM users;")
         user_records = cursor.fetchall()
 
-        list_of_users = []
         for row in user_records:
             list_of_users.append({'username': row[1]})
 
     except (Exception, psycopg2.Error) as error:
         print("Error while connecting to PostgreSQL", error)
-
+        res["error"] = str(error)
     finally:
         if (connection):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-
-    return jsonify({"users": list_of_users})
+        if ((len(list_of_users) == 0) & ("error" not in res)):
+            res["error"] = "There are no users in the system"
+        res["list_of_users"] = list_of_users
+        return res
 
 
 def fetch_user_workspaces(username):
