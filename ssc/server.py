@@ -1,6 +1,8 @@
 import os
 
 from flask import Flask, request, send_file
+from werkzeug import secure_filename
+
 
 from ssc.Workspaces.workspaces import *
 
@@ -20,10 +22,13 @@ def usersDummy():
 def delete_user():
     return delete_user_from_workspace(request.json)
 
-@app.route("/encryptFile")
+@app.route("/encryptFile", methods=['POST'])
 def post_encrypted_file():
-    # return send_file('/Users/elizabethcodd/MilkshakeFunny.png')
-    return encrypt_file(request.json)
+    return encrypt_file(request.files['file'])
+
+@app.route("/decryptFile", methods=['GET'])
+def download_decrypted_file():
+    return decrypt_file(request.json)
 
 
 @app.route('/api/workspaces', methods=['POST'])
@@ -34,5 +39,5 @@ def Workspaces_users():
 
 if __name__ == "__main__":
     # app.run(debug=True)
-    port = int(os.environ.get('PORT', 3000))
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

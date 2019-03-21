@@ -1,7 +1,8 @@
 # most standard and easy to understand libray
 import psycopg2
-from flask import jsonify, request
+from flask import jsonify, request, send_file
 from cryptography.fernet import Fernet
+from werkzeug import secure_filename
 
 
 def post_workspace_users(data):
@@ -68,7 +69,7 @@ def delete_user_from_workspace(data):
             cursor.execute(delete_user, (user_id, workspace_id))
             connection.commit()
 
-        elif (connection):
+        elif connection:
             cursor.close()
             connection.close()
             print("PostgresSQL connection is closed")
@@ -88,29 +89,35 @@ def delete_user_from_workspace(data):
     return 'user deleted'
 
 
-def encrypt_file(data):
+def encrypt_file(f):
+    f.save(secure_filename(f.filename))
+
     try:
+
         key = 'rfCFW5NYIJq5qWBLW_bXwHeg4z0PwVM9MDssLtQ-T4o='
-        file_name = data['file_name']
         print(key)
-        print(file_name)
+
         connection = psycopg2.connect(
             database='ssc'
         )
         cursor = connection.cursor()
+        filename = secure_filename(f.filename)
 
-        with open(file_name, 'rb') as f:
+        print(filename)
+        with open(filename, 'rb') as f:
             file = f.read()
 
-            # print(file)
+            print(file)
 
             fernet = Fernet(key)
             encrypted = fernet.encrypt(file)
-            print('!!!!!!!')
             print(encrypted)
 
-        with open('file_to_encrypt', 'wb') as f:
+        with open('S3/new_encrypted_file', 'wb') as f:
             f.write(encrypted)
+
+        #save encrypted_file to S3
+
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
 
@@ -123,3 +130,47 @@ def encrypt_file(data):
             print("PostgresSQL connection is closed")
 
     return 'encrypted'
+
+def decrypt_file(data):
+
+    filename = data['filename']
+
+
+    try:
+
+        key = 'rfCFW5NYIJq5qWBLW_bXwHeg4z0PwVM9MDssLtQ-T4o='
+        print(key)
+
+        connection = psycopg2.connect(
+            database='ssc'
+        )
+        cursor = connection.cursor()
+        # filename = secure_filename(f.filename)
+
+        with open('S3/downloads/' + filename, 'rb') as f:
+            file = f.read()
+
+            print(file)
+
+            fernet = Fernet(key)
+            decrypted = fernet.decrypt(file)
+            print(decrypted)
+
+        with open('new_decrypted_file', 'wb') as f:
+            f.write(decrypted)
+
+        # with open('new_decrypted_file', 'rb') as f:
+        #     decrypted_file = f.read()
+
+    except (Exception, psycopg2.Error) as error:
+        print('Error while conecting to PostgresQL', error)
+
+    finally:
+
+        if (connection):
+            # close the connection and the cursor
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+
+    return send_file('new_decrypted_file')

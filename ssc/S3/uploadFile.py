@@ -4,7 +4,7 @@ import botocore
 # Create an S3 client
 s3 = boto3.client('s3')
 
-filename = 'test.txt'
+filename = 'new_encrypted_file'
 bucket_name = 'lizzie-bucket'
 
 # Uploads the given file using a managed uploader, which will split up large
