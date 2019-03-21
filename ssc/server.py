@@ -78,8 +78,13 @@ def post_user():
 
 @app.route('/api/users/<username>', methods=["GET"])
 def get_user_workspaces(username):
-    list_of_workspaces = fetch_user_workspaces(username)
-    return jsonify({'workspaces': list_of_workspaces})
+    res = fetch_user_workspaces(username)
+    res_json = jsonify(res)
+
+    if ("error" in res):
+        return res_json, 404
+    else:
+        return res_json, 200
 
 
 @app.route("/api/deleteUser", methods=['DELETE'])
