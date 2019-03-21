@@ -112,12 +112,12 @@ def update_admin(workspace, admin_request):
     return True
 
 
-<<<<<<< HEAD
+
 
 def post_workspace_users(data):
-=======
+
 def create_workspace_only(data):
->>>>>>> dev
+
     try:
         workspace_name = data['name']
         admin = data['admin'];
@@ -135,8 +135,7 @@ def create_workspace_only(data):
         cursor = connection.cursor()
         cursor.execute(insert_workspace_name, (workspace_name,))
 
-<<<<<<< HEAD
-=======
+
         connection.commit()
         count = cursor.rowcount
         if (count == 0):
@@ -174,7 +173,7 @@ def create_workspace_with_users(data):
         insert_workspace_sql = "insert into workspaces (name) values (%s) " \
                                "returning workspace_id"
         cursor.execute(insert_workspace_sql, (workspace,))
->>>>>>> dev
+
         connection.commit()
 
         count = cursor.rowcount
@@ -236,12 +235,12 @@ def add_user_to_workspace(list_of_ids, workspace_id, is_admin=False):
             connection.close()
             print("PostgresSQL connection is closed")
 
-<<<<<<< HEAD
+
     return 'workspace added'
 
-=======
+
     return count
->>>>>>> dev
+
 
 
 def delete_user_from_workspace(data):
@@ -298,7 +297,7 @@ def delete_user_from_workspace(data):
     return 'user deleted'
 
 
-<<<<<<< HEAD
+
 def encrypt_file(f):
     f.save(secure_filename(f.filename))
 
@@ -385,7 +384,7 @@ def decrypt_file(data):
 
     return send_file('new_decrypted_file')
 
-=======
+
 def fetch_workspace_files(name):
     try:
         connection = psycopg2.connect(
@@ -425,4 +424,4 @@ def fetch_workspace_files(name):
             print("PostgreSQL connection is closed")
 
     return list_of_files;
->>>>>>> dev
+
