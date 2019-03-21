@@ -1,13 +1,11 @@
 import os
 
-
 from ssc.Workspaces.workspaces import *
 
 from flask import Flask, jsonify, request, abort
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 from ssc.Workspaces.workspaces import delete_workspace, update_admin, post_workspace_users
-
 
 app = Flask(__name__, template_folder='testflask/templates')
 
@@ -17,18 +15,20 @@ def homeDummy():
     return 'Home';
 
 
-
 @app.route("/users")
 def usersDummy():
     return "Hello, Users"
+
 
 @app.route("/deleteUser", methods=['DELETE'])
 def delete_user():
     return delete_user_from_workspace(request.json)
 
+
 @app.route("/encryptFile", methods=['POST'])
 def post_encrypted_file():
     return encrypt_file(request.files['file'])
+
 
 @app.route("/decryptFile", methods=['GET'])
 def download_decrypted_file():
@@ -57,13 +57,14 @@ def invite_user():
 
     res = insert_user_invite(request.json)
     res_json = {'user_invited': res}
-    if (res==False): res_json['error'] = 'Could not invite user. ' \
-                                         'Check user is admin or invite still exists'
+    if (res == False): res_json['error'] = 'Could not invite user. ' \
+                                           'Check user is admin or invite still exists'
     return jsonify(res_json);
+
 
 @app.route("/api/workspaces", methods=["DELETE"])
 def handle_delete_workspace():
-    if (not request.json) |  ('workspace' not in request.json) | ('deleted_by' not in request.json):
+    if (not request.json) | ('workspace' not in request.json) | ('deleted_by' not in request.json):
         abort(400)
 
     res = delete_workspace(request.json)
@@ -73,9 +74,10 @@ def handle_delete_workspace():
                                            'Check user is admin or workspace still exists'
     return jsonify(res_json);
 
+
 @app.route("/api/workspaces/<workspace_name>", methods=["PUT"])
 def handle_update_workspace(workspace_name):
-    if (not request.json) |  ('username' not in request.json) \
+    if (not request.json) | ('username' not in request.json) \
             | ('admin_username' not in request.json) | ('make_admin' not in request.json):
         abort(400)
 

@@ -1,16 +1,19 @@
+import asyncio
+
 import psycopg2
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id
 
-# TODO reuse db connection methods?
 
+# TODO test
 def fetch_user_invites(username):
     try:
         connection = psycopg2.connect(
             database="ssc")
         cursor = connection.cursor()
 
-        user_id=get_user_id(username);
+        loop = asyncio.new_event_loop()
+        user_id = loop.run_until_complete(get_user_id(username))
 
         if (user_id == -1):
             return []
@@ -100,9 +103,14 @@ def insert_user_invite(invite_json):
     workspace = invite_json['workspace']
     invited_by = invite_json['invitedBy']
 
-    user_id = get_user_id(username);
-    invited_by_id = get_user_id(invited_by);
-    workspace_id = get_workspace_id(workspace);
+    loop = asyncio.new_event_loop()
+    user_id = loop.run_until_complete(get_user_id(username))
+
+    loop = asyncio.new_event_loop()
+    invited_by_id = loop.run_until_complete(get_user_id(invited_by))
+
+    loop = asyncio.new_event_loop()
+    workspace_id = loop.run_until_complete(get_workspace_id(workspace))
 
     try:
         connection = psycopg2.connect(
@@ -112,7 +120,7 @@ def insert_user_invite(invite_json):
         is_inviter_admin_sql = """select * from workspace_users where user_id=%s and 
                                 workspace_id=%s and is_admin=True"""
 
-        cursor.execute(is_inviter_admin_sql, (invited_by_id,workspace_id))
+        cursor.execute(is_inviter_admin_sql, (invited_by_id, workspace_id))
         row = cursor.fetchone()
 
         if (row is None):
@@ -126,13 +134,14 @@ def insert_user_invite(invite_json):
 
     except (Exception, psycopg2.Error) as error:
         print("Error while connecting to PostgreSQL", error)
+        count = 0
     finally:
         # closing database connection.
         if (connection):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-
-    if (count==0): return False
-    return True
-
+            if (count == 0): return False
+            return True
+        else:
+            return False
