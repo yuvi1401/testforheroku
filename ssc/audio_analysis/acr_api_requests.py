@@ -4,6 +4,7 @@ import base64
 import hmac
 import hashlib
 import sys
+from io import BytesIO
 import os
 
 
@@ -29,8 +30,8 @@ def identify_audio(audio_file):
 
     signature = sign(string_to_sign, identify_access_secret)
 
-    f = open(audio_file, "rb")
-    sample_bytes = os.path.getsize(audio_file)
+    f = BytesIO(audio_file.read())
+    sample_bytes = len(audio_file.read())
 
     files = {'sample': f}
 

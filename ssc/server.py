@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from requests_toolbelt.multipart import decoder
+from ssc.audio_analysis.acr_api_requests import identify_audio
 
 from ssc.Workspaces.workspaces import *
 
@@ -138,11 +139,12 @@ def handle_update_workspace(workspace_name):
 
 @app.route("/api/audiokey", methods = ["POST"])
 def post_audio_key():
-    files = request.files["file"]
+    audio_file = request.files["file"]
+    print(identify_audio(audio_file))
 
 
-    audio = open(files, 'rb')
-    print(audio)
+
+
     return jsonify('ghjk')
     # if (not request.json) | ('audio_key' not in request.json) | ('session_id' not in request.json):
     #     abort(400)
