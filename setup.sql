@@ -33,22 +33,27 @@ create table audio_keys (
     session_id VARCHAR NOT NULL,
     created_at TIMESTAMP DEFAULT NOW());
 
-CREATE OR REPLACE FUNCTION delete_expired_keys() RETURNS trigger AS
-    $$
-    BEGIN
-    DELETE FROM audio_keys WHERE created_at < now() - interval '10 minutes';
 
-    END;
-    $$
-    LANGUAGE plpgsql VOLATILE;
-
-
-
-CREATE TRIGGER trigger_delete
-    BEFORE INSERT
-    ON audio_keys
-    FOR EACH ROW
-    EXECUTE PROCEDURE delete_expired_keys();
+--CREATE OR REPLACE FUNCTION delete_expired_keys() RETURNS trigger AS
+--    $body$
+--
+--    BEGIN
+--    DELETE FROM audio_keys
+--    WHERE created_at < now() - interval '2 minutes';
+--
+--    RETURN NUll;
+--    END;
+--    $body$
+--    LANGUAGE plpgsql VOLATILE;
+--
+--
+--
+--CREATE TRIGGER trigger_delete
+--    BEFORE INSERT
+--    ON audio_keys
+--    FOR EACH ROW
+--    EXECUTE PROCEDURE delete_expired_keys();
+--
 
 
 

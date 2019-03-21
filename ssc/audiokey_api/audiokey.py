@@ -1,8 +1,9 @@
 import psycopg2
 from ssc.dbconnection import connection, cursor
+from requests_toolbelt.multipart import decoder
 
 
-def post_audio_key(audio_key, session_id):
+def add_audio_key(response):
     try:
 
         add_audio_key_sql = "INSERT INTO audio_keys (audio_key, session_id)" \

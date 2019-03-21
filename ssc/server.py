@@ -1,20 +1,22 @@
 import os
 
 from flask import Flask, jsonify, request, abort
+from flask_cors import CORS
+from requests_toolbelt.multipart import decoder
 
 from ssc.Workspaces.workspaces import *
 
 from ssc.Invites.invites import fetch_user_invites, process_invite, insert_user_invite
 
 from ssc.Workspaces.workspaces import delete_workspace, update_admin, \
-    create_workspace_with_users, create_workspace_only, fetch_workspace_files,\
+    create_workspace_with_users, create_workspace_only, fetch_workspace_files, \
     delete_user_from_workspace
 
 from ssc.Users.users import fetch_users, add_user, fetch_user_workspaces
-
-
+from ssc.audiokey_api.audiokey import add_audio_key
 
 app = Flask(__name__, template_folder = 'testflask/templates')
+CORS(app)
 
 
 @app.route("/")
@@ -27,23 +29,22 @@ def get_users():
     return fetch_users()
 
 
-@app.route("/api/users", methods=['POST'])
+@app.route("/api/users", methods = ['POST'])
 def post_user():
     username = request.json['username']
     password = request.json['password']
     return add_user(username, password)
 
 
-@app.route('/api/users/<username>', methods=["GET"])
+@app.route('/api/users/<username>', methods = ["GET"])
 def get_user_workspaces(username):
     list_of_workspaces = fetch_user_workspaces(username)
     return jsonify({'workspaces': list_of_workspaces})
 
 
-@app.route("/deleteUser", methods=['DELETE'])
+@app.route("/deleteUser", methods = ['DELETE'])
 def delete_user():
     return delete_user_from_workspace(request.json)
-
 
 
 @app.route("/api/invites/<username>", methods = ["POST"])
@@ -54,7 +55,8 @@ def update_invite(username):
     res = process_invite(username, request.json)
     return jsonify({'invitesProcessed': res});
 
-@app.route("/api/invites/<username>", methods=["GET"])
+
+@app.route("/api/invites/<username>", methods = ["GET"])
 def get_user_invites(username):
     list_of_invites = fetch_user_invites(username)
     res = {'invites': list_of_invites}
@@ -74,7 +76,7 @@ def invite_user():
     return jsonify(res_json);
 
 
-@app.route('/api/workspaces', methods=['POST'])
+@app.route('/api/workspaces', methods = ['POST'])
 def handle_create_workspace():
     if (not request.json) | ('name' not in request.json) | ('admin' not in request.json):
         abort(400)
@@ -100,7 +102,7 @@ def handle_create_workspace():
         return jsonify(res_json);
 
 
-@app.route("/api/workspaces", methods=["DELETE"])
+@app.route("/api/workspaces", methods = ["DELETE"])
 def handle_delete_workspace():
     if (not request.json) | ('workspace' not in request.json) | ('deleted_by' not in request.json):
         abort(400)
@@ -112,14 +114,14 @@ def handle_delete_workspace():
     return jsonify(res_json);
 
 
-@app.route("/api/workspaces/<name>", methods=["GET"])
+@app.route("/api/workspaces/<name>", methods = ["GET"])
 def get_workspace_file(name):
     list_of_files = fetch_workspace_files(name)
     res = {'files': list_of_files}
     return jsonify(res);
-  
- 
-@app.route("/api/workspaces/<workspace_name>", methods=["PUT"])
+
+
+@app.route("/api/workspaces/<workspace_name>", methods = ["PUT"])
 def handle_update_workspace(workspace_name):
     if (not request.json) | ('username' not in request.json) \
             | ('admin_username' not in request.json) | ('make_admin' not in request.json):
@@ -134,14 +136,23 @@ def handle_update_workspace(workspace_name):
     return jsonify(res_json);
 
 
-@app.route('/api/users/<username>', methods = ["GET"])
-def get_user_workspaces(username):
-    list_of_workspaces = fetch_user_workspaces(username)
-    return jsonify({'workspaces': list_of_workspaces})
+@app.route("/api/audiokey", methods = ["POST"])
+def post_audio_key():
+    files = request.files["file"]
+
+
+    audio = open(files, 'rb')
+    print(audio)
+    return jsonify('ghjk')
+    # if (not request.json) | ('audio_key' not in request.json) | ('session_id' not in request.json):
+    #     abort(400)
+    #
+
+
+    #
 
 
 if __name__ == "__main__":
     # app.run(debug=True)
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-
+    app.run(host = '0.0.0.0', port = port)
