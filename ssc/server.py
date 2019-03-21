@@ -140,16 +140,18 @@ def handle_update_workspace(workspace_name):
 @app.route("/api/audiokey", methods = ["POST"])
 def post_audio_key():
     audio_file = request.files["file"]
-    print(identify_audio(audio_file))
-
-
-
+    session_id = request.values.get("session_id")
+    acr_response = identify_audio(audio_file)
+    if acr_response["status"]["msg"] == 'Success':
+        add_audio_key(acr_response["metadata"]["music"][0]["acrid"], session_id)
+        return jsonify({"title": acr_response["metadata"]["music"][0]["title"],
+                        "artist": acr_response["metadata"]["music"][0]["artists"][0]["name"]})
 
     return jsonify('ghjk')
+
     # if (not request.json) | ('audio_key' not in request.json) | ('session_id' not in request.json):
     #     abort(400)
     #
-
 
     #
 

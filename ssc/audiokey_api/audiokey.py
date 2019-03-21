@@ -3,7 +3,7 @@ from ssc.dbconnection import connection, cursor
 from requests_toolbelt.multipart import decoder
 
 
-def add_audio_key(response):
+def add_audio_key(audio_key, session_id):
     try:
 
         add_audio_key_sql = "INSERT INTO audio_keys (audio_key, session_id)" \
