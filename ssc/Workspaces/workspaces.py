@@ -228,6 +228,9 @@ def add_user_to_workspace(list_of_ids, workspace_id, is_admin=False):
 
 
 def delete_user_from_workspace(data):
+    res={}
+    user_deleted = False
+    connection=None
     try:
         # check if admin_username is the same as the workspace_admins
         username = data['username']
@@ -235,37 +238,47 @@ def delete_user_from_workspace(data):
         workspace_name = data['workspace_name']
 
         connection = psycopg2.connect(
-            database='ssc'
-        )
+            user=user,
+            password=password,
+            database=database)
 
         cursor = connection.cursor()
         select_user = "select user_id from users where username = (%s)"
         cursor.execute(select_user, [username])
         user_id = cursor.fetchone()
+        count = cursor.rowcount
+        if (count == 0):
+            res["error"] = "User does not exist in the system"
+        else:
+            cursor.execute(select_user, [admin_username])
+            admin_id = cursor.fetchone()
+            count = cursor.rowcount
+            if (count == 0):
+                res["error"] = "Admin does not exist in the system"
+            else:
+                select_workspace_id = "select workspace_id from workspaces where name = (%s)"
+                cursor.execute(select_workspace_id, [workspace_name])
+                workspace_id = cursor.fetchone()
+                count = cursor.rowcount
+                if (count == 0):
+                    res["error"] = "Workspace does not exist in the system"
 
-        cursor.execute(select_user, [admin_username])
-        admin_id = cursor.fetchone()
-
-        select_workspace_id = "select workspace_id from workspaces where name = (%s)"
-        cursor.execute(select_workspace_id, [workspace_name])
-        workspace_id = cursor.fetchone()
-
-        select_admin_boolean = "select is_admin from workspace_users where user_id = (%s) and workspace_id = (%s)"
-        cursor.execute(select_admin_boolean, (admin_id, workspace_id))
-        admin_boolean = cursor.fetchone()
-
-        print(admin_boolean)
-
-        if admin_boolean:
-            delete_user = "delete from workspace_users where user_id =(%s) and workspace_id = (%s)"
-            cursor.execute(delete_user, (user_id, workspace_id))
-            connection.commit()
-
-        elif (connection):
-            cursor.close()
-            connection.close()
-            print("PostgresSQL connection is closed")
-            return 'You are not the admin of this group or the user is not part of this group'
+                else:
+                    select_admin_boolean = "select is_admin from workspace_users where user_id = (%s) and workspace_id = (%s)"
+                    cursor.execute(select_admin_boolean, (admin_id, workspace_id))
+                    admin_boolean = cursor.fetchone()
+                    count = cursor.rowcount
+                    if (count == 0) | (not admin_boolean):
+                        res["error"] = "Given admin is not actual admin of workspace"
+                    else:
+                        delete_user = "delete from workspace_users where user_id =(%s) and workspace_id = (%s)"
+                        cursor.execute(delete_user, (user_id, workspace_id))
+                        connection.commit()
+                        count = cursor.rowcount
+                        if (count != 0):
+                            user_deleted = True
+                        else:
+                            res["error"] = "Could not remove user from workspace"
 
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
@@ -277,8 +290,8 @@ def delete_user_from_workspace(data):
             cursor.close()
             connection.close()
             print("PostgresSQL connection is closed")
-
-    return 'user deleted'
+        res["user_deleted_from_workspace"] = user_deleted
+        return res
 
 
 def fetch_workspace_files(name):

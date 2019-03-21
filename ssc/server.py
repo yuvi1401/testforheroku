@@ -89,7 +89,17 @@ def get_user_workspaces(username):
 
 @app.route("/api/deleteUser", methods=['DELETE'])
 def delete_user():
-    return delete_user_from_workspace(request.json)
+    if (not request.json) | ('username' not in request.json) | ('admin_username' not in request.json) | (
+            'workspace_name' not in request.json):
+        abort(400)
+
+    res = delete_user_from_workspace(request.json)
+    res_json = jsonify(res)
+    if ("error" in res):
+        return res_json, 404
+    else:
+        return res_json, 200
+
 
 
 @app.route("/api/invites", methods=["POST"])
