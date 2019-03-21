@@ -161,3 +161,4 @@ def insert_user_invite(invite_json):
             print("PostgreSQL connection is closed")
         res['user_invited'] = user_invited
         return res
+
