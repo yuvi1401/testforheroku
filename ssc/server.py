@@ -46,9 +46,17 @@ def get_user_workspaces(username):
     return jsonify({'workspaces': list_of_workspaces})
 
 
-@app.route("/deleteUser", methods=['DELETE'])
+@app.route("/api/deleteuser", methods=["DELETE"])
 def delete_user():
-    return delete_user_from_workspace(request.json)
+    if (not request.json) | ('username' not in request.json) | ('admin_username' not in request.json) | (
+            'workspace_name' not in request.json):
+        abort(400)
+
+    res = delete_user_from_workspace(request.json)
+    res_json = {'user_deleted_from_workspace': res}
+    if (res == False): res_json['error'] = 'Could not delete user. ' \
+                                           'Check user is admin or workspace still exists'
+    return jsonify(res_json);
 
 
 @app.route("/api/invites/<username>", methods=["POST"])
