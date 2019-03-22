@@ -66,7 +66,7 @@ def fetch_users():
             print("PostgreSQL connection is closed")
         if ((len(list_of_users) == 0) & ("error" not in res)):
             res["error"] = "There are no users in the system"
-        res["list_of_users"] = list_of_users
+        res["users"] = list_of_users
         return res
 
 
