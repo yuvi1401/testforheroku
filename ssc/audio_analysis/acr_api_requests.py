@@ -3,12 +3,6 @@ import time
 import base64
 import hmac
 import hashlib
-import sys
-# from io import BytesIO
-import os
-
-
-
 from ssc.audio_analysis.acrconfig import identify_access_key, identify_access_secret, \
     identify_host, signature_version, account_access_key, account_access_secret, account_host
 
@@ -30,11 +24,6 @@ def identify_audio(audio_file, sample_bytes):
 
     signature = sign(string_to_sign, identify_access_secret)
 
-    # f = BytesIO(audio_file.read())
-
-    # sample_bytes = len(audio_file.read())
-    # print(len(sample_bytes))
-
     files = {'sample': audio_file}
 
     data = {'access_key': identify_access_key,
@@ -52,10 +41,7 @@ def identify_audio(audio_file, sample_bytes):
     res = r.json()
 
     return res
-    # res = r.json()
     # audio_id = base64.b64decode(res["metadata"]["music"][0]["acrid"])
-    #
-    # return audio_id
 
 
 def create_acr_bucket(name):
@@ -96,7 +82,6 @@ def upload_audio(audio_file, filename, session_id):
 
     signature = sign(string_to_sign, account_access_secret)
 
-    # f = BytesIO(audio_file.read())
     files = {'audio_file': ("audio_file", audio_file)}
 
     headers = {'access-key': account_access_key, 'signature-version': signature_version, 'signature': signature,
