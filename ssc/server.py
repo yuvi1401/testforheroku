@@ -1,9 +1,10 @@
 import os
+from io import BytesIO
 
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
 from requests_toolbelt.multipart import decoder
-from ssc.audio_analysis.acr_api_requests import identify_audio
+from ssc.audio_analysis.acr_api_requests import identify_audio, upload_audio
 
 from ssc.Workspaces.workspaces import *
 
@@ -139,21 +140,33 @@ def handle_update_workspace(workspace_name):
 
 @app.route("/api/audiokey", methods = ["POST"])
 def post_audio_key():
-    audio_file = request.files["file"]
+    file = request.files["file"].read()
+    audio_file_copy1 = BytesIO(file)
+    audio_file_copy2 = BytesIO(file)
+    sample_bytes = len(file)
     session_id = request.values.get("session_id")
-    acr_response = identify_audio(audio_file)
+    file_name = request.values.get("filename")
+    acr_response = identify_audio(audio_file_copy1, sample_bytes)
+    if acr_response["status"]["msg"] == 'No result':
+        acr_upload_response = upload_audio(audio_file_copy2, file_name, session_id)
+        add_audio_key(acr_upload_response["acr_id"], session_id)
+        return jsonify({"notRecognised": True})
+    if 'custom_files' in acr_response["metadata"].keys():
+        print('custom found')
+        return jsonify({"fileError": True})
     if acr_response["status"]["msg"] == 'Success':
         add_audio_key(acr_response["metadata"]["music"][0]["acrid"], session_id)
         return jsonify({"title": acr_response["metadata"]["music"][0]["title"],
                         "artist": acr_response["metadata"]["music"][0]["artists"][0]["name"]})
 
-    return jsonify('ghjk')
+    return jsonify('Error check')
 
-    # if (not request.json) | ('audio_key' not in request.json) | ('session_id' not in request.json):
-    #     abort(400)
-    #
 
-    #
+# if (not request.json) | ('audio_key' not in request.json) | ('session_id' not in request.json):
+#     abort(400)
+#
+
+#
 
 
 if __name__ == "__main__":

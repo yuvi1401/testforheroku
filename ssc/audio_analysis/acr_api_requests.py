@@ -4,7 +4,7 @@ import base64
 import hmac
 import hashlib
 import sys
-from io import BytesIO
+# from io import BytesIO
 import os
 
 
@@ -19,7 +19,7 @@ def sign(string_to_sign, secret):
             .digest())
 
 
-def identify_audio(audio_file):
+def identify_audio(audio_file, sample_bytes):
     data_type = 'audio'
     http_method = "POST"
     http_uri = "/v1/identify"
@@ -30,10 +30,12 @@ def identify_audio(audio_file):
 
     signature = sign(string_to_sign, identify_access_secret)
 
-    f = BytesIO(audio_file.read())
-    sample_bytes = len(audio_file.read())
+    # f = BytesIO(audio_file.read())
 
-    files = {'sample': f}
+    # sample_bytes = len(audio_file.read())
+    # print(len(sample_bytes))
+
+    files = {'sample': audio_file}
 
     data = {'access_key': identify_access_key,
             'sample_bytes': sample_bytes,
@@ -83,9 +85,7 @@ def create_acr_bucket(name):
     print(r.text)
 
 
-def upload_audio(path, bucket, title, audio_id):
-    if identify_audio(sys.argv[1])["status"]["msg"] == 'Success':
-        return print('This audio file already exists please choose another')
+def upload_audio(audio_file, filename, session_id):
 
     http_method = "POST"
     timestamp = str(time.time())
@@ -96,13 +96,13 @@ def upload_audio(path, bucket, title, audio_id):
 
     signature = sign(string_to_sign, account_access_secret)
 
-    f = open(path, "rb")
-    files = {'audio_file': ("audio_file", f)}
+    # f = BytesIO(audio_file.read())
+    files = {'audio_file': ("audio_file", audio_file)}
 
     headers = {'access-key': account_access_key, 'signature-version': signature_version, 'signature': signature,
                'timestamp': timestamp}
 
-    data = {'title': title, "audio_id": audio_id, "bucket_name": bucket, "data_type": "audio"}
+    data = {'title': filename, "audio_id": session_id, "bucket_name": "ssc_bucket", "data_type": "audio"}
 
     requrl = account_host + uri
 
@@ -110,4 +110,6 @@ def upload_audio(path, bucket, title, audio_id):
 
     r.encoding = "utf-8"
 
-    return r
+    res = r.json()
+
+    return res
