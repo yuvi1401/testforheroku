@@ -40,7 +40,7 @@ def fetch_user_invites(username):
             cursor.close()
             connection.close()
             print("PostgreSQL connection is closed")
-        res["list_of_invites"] = list_of_invites
+        res["invites"] = list_of_invites
         return res
 
 
