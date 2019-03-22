@@ -1,6 +1,10 @@
 import asyncio
 
 import psycopg2
+from flask import send_file
+from cryptography.fernet import Fernet
+from werkzeug import secure_filename
+
 
 from ssc.Utils.db_ops import get_workspace_id, get_user_id, is_user_admin
 from ssc.dbconfig import user, password, database
@@ -122,10 +126,15 @@ def update_admin(workspace, admin_request):
         return res
 
 
+
+
+def post_workspace_users(data):
+
 def create_workspace_only(data):
     res={}
     workspace_added = False
     connection=None
+
     try:
         workspace_name = data['name']
         admin = data['admin'];
@@ -141,6 +150,7 @@ def create_workspace_only(data):
                 database=database)
 
             insert_workspace_name = "insert into workspaces (name) values (%s) returning workspace_id"
+
 
             cursor = connection.cursor()
             cursor.execute(insert_workspace_name, (workspace_name,))
@@ -188,6 +198,7 @@ def create_workspace_with_users(data):
         insert_workspace_sql = "insert into workspaces (name) values (%s) " \
                                "returning workspace_id"
         cursor.execute(insert_workspace_sql, (workspace,))
+
         connection.commit()
 
         count = cursor.rowcount
@@ -244,7 +255,7 @@ def add_user_to_workspace(list_of_ids, workspace_id, is_admin=False):
                 count += cursor.rowcount
 
     except (Exception, psycopg2.Error) as error:
-        print('Error while conecting to PostgresQL', error)
+        print('Error while connecting to PostgresQL', error)
         return 0
     finally:
         if (connection):
@@ -253,7 +264,12 @@ def add_user_to_workspace(list_of_ids, workspace_id, is_admin=False):
             connection.close()
             print("PostgresSQL connection is closed")
 
+
+    return 'workspace added'
+
+
     return count
+
 
 
 def delete_user_from_workspace(data):
@@ -309,6 +325,7 @@ def delete_user_from_workspace(data):
                         else:
                             res["error"] = "Could not remove user from workspace"
 
+
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
         res['error']=str(error)
@@ -321,6 +338,94 @@ def delete_user_from_workspace(data):
             print("PostgresSQL connection is closed")
         res["user_deleted_from_workspace"] = user_deleted
         return res
+
+
+
+def encrypt_file(f):
+    f.save(secure_filename(f.filename))
+
+    try:
+
+        key = 'rfCFW5NYIJq5qWBLW_bXwHeg4z0PwVM9MDssLtQ-T4o='
+        print(key)
+
+        connection = psycopg2.connect(
+            database='ssc'
+        )
+        cursor = connection.cursor()
+        filename = secure_filename(f.filename)
+
+        print(filename)
+        with open(filename, 'rb') as f:
+            file = f.read()
+
+            print(file)
+
+            fernet = Fernet(key)
+            encrypted = fernet.encrypt(file)
+            print(encrypted)
+
+        with open('S3/new_encrypted_file', 'wb') as f:
+            f.write(encrypted)
+
+        #save encrypted_file to S3
+
+    except (Exception, psycopg2.Error) as error:
+        print('Error while conecting to PostgresQL', error)
+
+    finally:
+
+        if (connection):
+            # close the connection and the cursor
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+
+    return 'encrypted'
+
+def decrypt_file(data):
+
+    filename = data['filename']
+
+
+    try:
+
+        key = 'rfCFW5NYIJq5qWBLW_bXwHeg4z0PwVM9MDssLtQ-T4o='
+        print(key)
+
+        connection = psycopg2.connect(
+            database='ssc'
+        )
+        cursor = connection.cursor()
+        # filename = secure_filename(f.filename)
+
+        with open('S3/downloads/' + filename, 'rb') as f:
+            file = f.read()
+
+            print(file)
+
+            fernet = Fernet(key)
+            decrypted = fernet.decrypt(file)
+            print(decrypted)
+
+        with open('new_decrypted_file', 'wb') as f:
+            f.write(decrypted)
+
+        # with open('new_decrypted_file', 'rb') as f:
+        #     decrypted_file = f.read()
+
+    except (Exception, psycopg2.Error) as error:
+        print('Error while conecting to PostgresQL', error)
+
+    finally:
+
+        if (connection):
+            # close the connection and the cursor
+            cursor.close()
+            connection.close()
+            print("PostgresSQL connection is closed")
+
+    return send_file('new_decrypted_file')
 
 
 def fetch_workspace_files(name):
@@ -364,3 +469,4 @@ def fetch_workspace_files(name):
             res["error"] = "There are no files in this workspace"
         res["files"] = list_of_files
         return res
+
