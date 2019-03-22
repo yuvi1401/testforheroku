@@ -30,6 +30,10 @@ def post_encrypted_file():
 def download_decrypted_file():
     return decrypt_file(request.json)
 
+@app.route("/decryptFile", methods=['GET'])
+def download_decrypted_file():
+    return decrypt_file(request.json)
+  
 @app.route('/api/login', methods=['GET'])
 def login():
     username = request.json['username']

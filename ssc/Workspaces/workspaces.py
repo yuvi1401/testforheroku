@@ -13,6 +13,7 @@ def delete_workspace(delete_request):
     connection = None
     workspace_deleted = False
     res = {}
+
     deleted_by = delete_request['deleted_by']
     workspace = delete_request['workspace']
     loop = asyncio.new_event_loop()
@@ -41,12 +42,16 @@ def delete_workspace(delete_request):
                 cursor.execute(delete_workspace_sql, (workspace_id,))
                 connection.commit()
                 count = cursor.rowcount
+
                 if (count != 0):
+
                     workspace_deleted = True
 
     except (Exception, psycopg2.Error) as error:
         print("Error while connecting to PostgreSQL", error)
+
         res['error'] = error
+
 
     finally:
         # closing database connection.
@@ -62,6 +67,7 @@ def delete_workspace(delete_request):
 def update_admin(workspace, admin_request):
     workspace_admin_updated = False
     connection = None
+
     res = {}
 
     username = admin_request['username']
@@ -120,14 +126,17 @@ def update_admin(workspace, admin_request):
             connection.close()
             print("PostgreSQL connection is closed")
 
+
         res['workspace_admin_updated'] = workspace_admin_updated
         return res
 
 
 def create_workspace_only(data):
+
     res = {}
     workspace_added = False
     connection = None
+
 
     try:
         workspace_name = data['name']
@@ -135,7 +144,9 @@ def create_workspace_only(data):
         loop = asyncio.new_event_loop()
         admin_id = loop.run_until_complete(get_user_id(admin))
 
+
         if (admin_id == -1):
+
             res['error'] = 'Could not find user in the system so cannot add workspace for user'
         else:
             connection = psycopg2.connect(
@@ -155,8 +166,10 @@ def create_workspace_only(data):
             else:
                 new_workspace_id = cursor.fetchone()[0]
                 admin_added = add_user_to_workspace([admin_id], new_workspace_id, True)
+
                 if (admin_added != 0):
                     workspace_added = True
+
                 else:
                     res['error'] = 'Workspace created but could not set admin. Contact support'
 
@@ -170,7 +183,9 @@ def create_workspace_only(data):
             cursor.close()
             connection.close()
             print("PostgresSQL connection is closed")
+
         res['workspace_added'] = workspace_added
+
         return res
 
 
@@ -178,9 +193,11 @@ def create_workspace_with_users(data):
     users = data['users'];
     admin = data['admin'];
     workspace = data['name'];
+
     res = {}
     users_added = False
     connection = None
+
 
     try:
         connection = psycopg2.connect(
@@ -211,10 +228,12 @@ def create_workspace_with_users(data):
                     single_user_id = loop.run_until_complete(get_user_id(user['username']))
                     user_id_list.append(single_user_id)
                 users_added = add_user_to_workspace(user_id_list, new_workspace_id);
+
                 if (users_added != len(users)):
                     res['error'] = 'Some users could not be added to workspace. Try again'
                 else:
                     users_added = True
+
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
         res['error'] = str(error)
@@ -266,6 +285,7 @@ def delete_user_from_workspace(data):
     res = {}
     user_deleted = False
     connection = None
+
     try:
         # check if admin_username is the same as the workspace_admins
         username = data['username']
@@ -318,7 +338,9 @@ def delete_user_from_workspace(data):
 
     except (Exception, psycopg2.Error) as error:
         print('Error while conecting to PostgresQL', error)
+
         res['error'] = str(error)
+
     finally:
 
         if (connection):
@@ -418,9 +440,11 @@ def decrypt_file(data):
 
 
 def fetch_workspace_files(name):
+
     list_of_files = []
     res = {}
     connection = None
+
     try:
         connection = psycopg2.connect(
             database="ssc")
@@ -458,3 +482,4 @@ def fetch_workspace_files(name):
             res["error"] = "There are no files in this workspace"
         res["files"] = list_of_files
         return res
+
