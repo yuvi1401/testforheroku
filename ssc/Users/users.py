@@ -99,7 +99,6 @@ def fetch_user_workspaces(username):
                 list_of_user_workspaces.append({'workspace': row[0],
                                                 'is_admin': row[1]})
 
-
     except (Exception, psycopg2.Error) as error:
         print("Error while connecting to PostgreSQL", error)
         res["error"] = str(error)
