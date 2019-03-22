@@ -126,10 +126,6 @@ def update_admin(workspace, admin_request):
         return res
 
 
-
-
-def post_workspace_users(data):
-
 def create_workspace_only(data):
     res={}
     workspace_added = False
